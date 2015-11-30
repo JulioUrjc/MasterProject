@@ -4,7 +4,7 @@
 #include "../Framework/ParticleParameter.h"
 #include "../Framework/ParticleEmitter.h"
 
-#include "GL/freeglut.h"
+#include "../../freeglut/GL/freeglut.h"
 
 #include "Scene1.h"
 #include "Scene2.h"

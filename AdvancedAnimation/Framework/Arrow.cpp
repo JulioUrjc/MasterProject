@@ -1,7 +1,7 @@
 #include "Arrow.h"
 #include "Render.h"
 
-#include "GL/freeglut.h"
+#include "../../freeglut/GL/freeglut.h"
 
 const float32 Arrow::k_size = 3.5f;
 const b2Color Arrow::k_activeColor(0.0f, 1.0f, 0.0f);

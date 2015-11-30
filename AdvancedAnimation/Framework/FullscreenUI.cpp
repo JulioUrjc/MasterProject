@@ -1,7 +1,7 @@
 #include "FullscreenUI.h"
 #include "Arrow.h"
 
-#include <GL/freeglut.h>
+#include "../../freeglut/GL/freeglut.h"
 
 const bool FullscreenUI::k_enabledDefault = false;
 

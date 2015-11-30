@@ -1,6 +1,6 @@
 #include "Render.h"
 
-#include "GL/freeglut.h"
+#include "../../freeglut/GL/freeglut.h"
 
 // We need these 4 from glext.h, and define them here rather than relying on the header, which is not universally available.
 #ifndef GL_POINT_SPRITE

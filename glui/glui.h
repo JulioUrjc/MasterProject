@@ -32,7 +32,7 @@
 #ifndef GLUI_GLUI_H
 #define GLUI_GLUI_H
 
-#include "GL/freeglut.h"
+#include "../../freeglut/GL/freeglut.h"
 
 #if defined(ANDROID) || defined(__ANDROID__)
 #include "GLEmu/gl_emu.h"
