@@ -10,11 +10,13 @@
 #include "Scene2.h"
 #include "Scene3.h"
 #include "Scene4.h"
+#include "Scene5.h"
 
 TestEntry g_testEntries[] ={
 	{"Scene1", Scene1::Create },
 	{"Scene2", Scene2::Create },
 	{"Scene3", Scene3::Create },
 	{"Scene4", Scene4::Create },
+	{"Scene5", Scene5::Create },
 	{NULL, NULL}
 };
