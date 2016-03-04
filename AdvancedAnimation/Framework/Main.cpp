@@ -5,6 +5,7 @@
 	#include "GL/freeglut.h"
 #endif
 
+#include "Main.h"
 #include "Render.h"
 #include "Test.h"
 #include "FullscreenUI.h"
@@ -21,7 +22,7 @@ namespace TestMain{
 			int32 testIndex = 0;
 			int32 testSelection = 0;
 			int32 testo = 0;
-			GLUI_String texto = "Hello World!";
+			GLUI_String texto = "PFM Julio Martin";
 			int32 testCount = 0;
 			TestEntry* entry;
 			Test* test;
@@ -31,6 +32,8 @@ namespace TestMain{
 			int32 framePeriod = 16;
 			int32 mainWindow;
 			float settingsHz = 60.0;
+			std::string geomFile_;
+			std::string neuronFile_;
 
 			#if ENABLE_GLUI
 					GLUI *glui = NULL;
@@ -67,6 +70,11 @@ namespace TestMain{
 
 		void SetParticleParameters(const ParticleParameter::Definition * const particleParameterDef, const uint32 particleParameterDefCount){
 			particleParameter.SetDefinition(particleParameterDef, particleParameterDefCount);
+		}
+
+		void GetFilesNames(string &geomFile, string &neuronFile){
+			geomFile = geomFile_;
+			neuronFile = neuronFile_;
 		}
 
 		static void Resize(int32 w, int32 h){
@@ -441,9 +449,13 @@ namespace TestMain{
 int main(int argc, char** argv){
 	using namespace TestMain;
 
+	if (argc > 1) geomFile_ = argv[1];
+	if (argc > 2) neuronFile_ = argv[2];
+	cout << geomFile_ << "  " << neuronFile_ << endl;
+
 	testCount = 0;
 	while (g_testEntries[testCount].createFcn != NULL){	++testCount; }
-
+	
 	testIndex = b2Clamp(testIndex, 0, testCount-1);
 	testSelection = testIndex;
 
@@ -459,7 +471,7 @@ int main(int argc, char** argv){
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(width, height);
 	char title[32];
-	sprintf(title, "Advanced Animation Work");
+	sprintf(title, "PFM Julio Martin MIGJRV");
 	mainWindow = glutCreateWindow(title);
 
 	glutDisplayFunc(SimulationLoop);

@@ -3,16 +3,141 @@
 
 #include <iostream>
 #include <time.h>
+#include <vector>
+
 using namespace std;
 
 class Scene5 : public Test {
 	public:
-		Scene5(){		
-			
-		};
+		Scene5(){
+		{
+			porcentaje3 = 20;
+			porcentaje = 50;
+			porcentaje2 = 100;
+			porcentaje4 = 70;
 
+			m_position = 0;
+			m_position2 = 0;
+			m_position3 = 0;
+			// Initialize the particle emitter1.
+			{
+				const float32 faucetLength = m_particleSystem->GetRadius() * 2.0f * k_faucetLength;
+				m_emitter.SetParticleSystem(m_particleSystem);
+				m_emitter.SetPosition(b2Vec2(250.0f, 550.0f));
+				m_emitter.SetVelocity(b2Vec2(-0.1f, 0.0f));
+				m_emitter.SetSize(b2Vec2(0.0f, faucetLength));
+				m_emitter.SetColor(b2ParticleColor(255, 0, 0, 255));
+				m_emitter.SetEmitRate(400.0f);
+				m_emitter.SetParticleFlags(TestMain::GetParticleParameterValue());
+			}
+
+			// Initialize the particle emitter2.
+			{
+				const float32 faucetLength = m_particleSystem->GetRadius() * 2.0f * k_faucetLength;
+				m_emitter2.SetParticleSystem(m_particleSystem);
+				m_emitter2.SetPosition(b2Vec2(2.5f, 400.0f));
+				m_emitter2.SetVelocity(b2Vec2(0.1f, 0.0f));
+				m_emitter2.SetSize(b2Vec2(0.0f, faucetLength));
+				m_emitter2.SetColor(b2ParticleColor(255, 0, 0, 255));
+				m_emitter2.SetEmitRate(400.0f);
+				m_emitter2.SetParticleFlags(TestMain::GetParticleParameterValue());
+			}
+
+			// Initialize the particle emitter3.
+			{
+				const float32 faucetLength = m_particleSystem->GetRadius() * 2.0f * k_faucetLength;
+				m_emitter3.SetParticleSystem(m_particleSystem);
+				m_emitter3.SetPosition(b2Vec2(-300.5f, 350.0f));
+				m_emitter3.SetVelocity(b2Vec2(0.1f, 0.0f));
+				m_emitter3.SetSize(b2Vec2(0.0f, faucetLength));
+				m_emitter3.SetColor(b2ParticleColor(255, 0, 0, 255));
+				m_emitter3.SetEmitRate(400.0f);
+				m_emitter3.SetParticleFlags(TestMain::GetParticleParameterValue());
+			}
+
+			// Initialize the particle emitter4.
+			{
+				const float32 faucetLength = m_particleSystem->GetRadius() * 2.0f * k_faucetLength;
+				m_emitter4.SetParticleSystem(m_particleSystem);
+				m_emitter4.SetPosition(b2Vec2(350.5f, 200.0f));
+				m_emitter4.SetVelocity(b2Vec2(0.1f, 0.0f));
+				m_emitter4.SetSize(b2Vec2(0.0f, faucetLength));
+				m_emitter4.SetColor(b2ParticleColor(255, 0, 0, 255));
+				m_emitter4.SetEmitRate(400.0f);
+				m_emitter4.SetParticleFlags(TestMain::GetParticleParameterValue());
+			}
+			Zoom = 25.0f;
+			m_world->SetGravity(b2Vec2(0, -10));
+
+			// Configure particle system parameters.
+			m_particleSystem->SetRadius(8.065f);
+			m_particleSystem->SetMaxParticleCount(100000);
+			m_particleSystem->SetDestructionByAge(true);
+
+			TestMain::GetFilesNames(geomFile_, neuronFile_);
+				
+			std::vector<b2Vec2> geomRead;
+			if (geomFile_ != ""){
+				FILE *archivo;
+				archivo = fopen(geomFile_.c_str(), "r");
+				float x, y;
+
+				fscanf(archivo, "%f %f", &x, &y);
+				geomRead.push_back(b2Vec2(x, y));
+			}
+
+				b2BodyDef bd;
+				b2Body* ground = m_world->CreateBody(&bd);
+				b2ChainShape bodyGeom;						
+
+				//for (int i = 0; i < geomRead.size(); ++i){
+				//	//geomRead[i] -= b2Vec2(600.0f, 800.0f);
+				//	//geomRead[i] = geomRead[i].Skew4();
+				//}
+
+				//bodyBrain.CreateLoop(brain, 93);
+				bodyGeom.CreateLoop(&geomRead[0], geomRead.size());
+
+				b2FixtureDef def;
+				def.shape = &bodyGeom;
+				ground->CreateFixture(&def);
+
+				// Create brodman
+				{
+					b2BodyDef bd;
+					b2Body* ground = m_world->CreateBody(&bd);
+					b2ChainShape bodybrodman;
+					b2Vec2 brodman[4] = {
+						b2Vec2(286.0f, 538.0f), b2Vec2(586.0f, 115.0f),
+						b2Vec2(819.0f, 528.0f), b2Vec2(1095.0f, 450.0f)
+					};
+
+					for (int i = 0; i < 4; ++i){
+						brodman[i] -= b2Vec2(600.0f, 800.0f);
+						brodman[i] = brodman[i].Skew4();
+					}
+
+					bodybrodman.CreateChain(brodman, 4);
+					b2FixtureDef def;
+					def.shape = &bodybrodman;
+					ground->CreateFixture(&def);
+				}
+			}
+
+
+			// Don't restart the test when changing particle types.
+			TestMain::SetRestartOnParticleParameterChange(false);
+			// Limit the set of particle types.
+			TestMain::SetParticleParameters(k_paramDef, k_paramDefCount);
+			// Create the particles.
+			//ResetParticles();
+		}		
+
+		void setFiles(const string geomFile, const string neuronFile){ geomFile_ = geomFile; neuronFile_ = neuronFile; }
+		
 		virtual void Step(Settings* settings){
 			Test::Step(settings);
+
 			// Number of particles below (bottom) the barrier.
 			// int32 top = 0;
 		
