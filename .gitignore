@@ -196,3 +196,6 @@ FakesAssemblies/
 *.opt
 /AdvancedAnimationProject.sdf
 /AdvancedAnimationProject.v12.suo
+/AdvancedAnimation/Debug/*.pdb
+/AdvancedAnimation/Objcode/Scenes.tlog/*.tlog
+/AdvancedAnimation/*.user

@@ -9,122 +9,81 @@ using namespace std;
 
 class Scene5 : public Test {
 	public:
-		Scene5(){
-		{
-			porcentaje3 = 20;
-			porcentaje = 50;
-			porcentaje2 = 100;
-			porcentaje4 = 70;
-
-			m_position = 0;
-			m_position2 = 0;
-			m_position3 = 0;
-			// Initialize the particle emitter1.
-			{
-				const float32 faucetLength = m_particleSystem->GetRadius() * 2.0f * k_faucetLength;
-				m_emitter.SetParticleSystem(m_particleSystem);
-				m_emitter.SetPosition(b2Vec2(250.0f, 550.0f));
-				m_emitter.SetVelocity(b2Vec2(-0.1f, 0.0f));
-				m_emitter.SetSize(b2Vec2(0.0f, faucetLength));
-				m_emitter.SetColor(b2ParticleColor(255, 0, 0, 255));
-				m_emitter.SetEmitRate(400.0f);
-				m_emitter.SetParticleFlags(TestMain::GetParticleParameterValue());
-			}
-
-			// Initialize the particle emitter2.
-			{
-				const float32 faucetLength = m_particleSystem->GetRadius() * 2.0f * k_faucetLength;
-				m_emitter2.SetParticleSystem(m_particleSystem);
-				m_emitter2.SetPosition(b2Vec2(2.5f, 400.0f));
-				m_emitter2.SetVelocity(b2Vec2(0.1f, 0.0f));
-				m_emitter2.SetSize(b2Vec2(0.0f, faucetLength));
-				m_emitter2.SetColor(b2ParticleColor(255, 0, 0, 255));
-				m_emitter2.SetEmitRate(400.0f);
-				m_emitter2.SetParticleFlags(TestMain::GetParticleParameterValue());
-			}
-
-			// Initialize the particle emitter3.
-			{
-				const float32 faucetLength = m_particleSystem->GetRadius() * 2.0f * k_faucetLength;
-				m_emitter3.SetParticleSystem(m_particleSystem);
-				m_emitter3.SetPosition(b2Vec2(-300.5f, 350.0f));
-				m_emitter3.SetVelocity(b2Vec2(0.1f, 0.0f));
-				m_emitter3.SetSize(b2Vec2(0.0f, faucetLength));
-				m_emitter3.SetColor(b2ParticleColor(255, 0, 0, 255));
-				m_emitter3.SetEmitRate(400.0f);
-				m_emitter3.SetParticleFlags(TestMain::GetParticleParameterValue());
-			}
-
-			// Initialize the particle emitter4.
-			{
-				const float32 faucetLength = m_particleSystem->GetRadius() * 2.0f * k_faucetLength;
-				m_emitter4.SetParticleSystem(m_particleSystem);
-				m_emitter4.SetPosition(b2Vec2(350.5f, 200.0f));
-				m_emitter4.SetVelocity(b2Vec2(0.1f, 0.0f));
-				m_emitter4.SetSize(b2Vec2(0.0f, faucetLength));
-				m_emitter4.SetColor(b2ParticleColor(255, 0, 0, 255));
-				m_emitter4.SetEmitRate(400.0f);
-				m_emitter4.SetParticleFlags(TestMain::GetParticleParameterValue());
-			}
+		Scene5(){		
 			Zoom = 25.0f;
 			m_world->SetGravity(b2Vec2(0, -10));
 
-			// Configure particle system parameters.
-			m_particleSystem->SetRadius(8.065f);
-			m_particleSystem->SetMaxParticleCount(100000);
-			m_particleSystem->SetDestructionByAge(true);
-
 			TestMain::GetFilesNames(geomFile_, neuronFile_);
 				
-			std::vector<b2Vec2> geomRead;
+			vector<b2Vec2> geomRead;
+			vector<b2Vec2> particiones;
+
+			maxX = -FLT_MAX;
+			minX = FLT_MAX;
+			maxY = -FLT_MAX;
+			minY = FLT_MAX;
+
+			// { Read Geom and Partition File}
 			if (geomFile_ != ""){
 				FILE *archivo;
 				archivo = fopen(geomFile_.c_str(), "r");
-				float x, y;
 
-				fscanf(archivo, "%f %f", &x, &y);
-				geomRead.push_back(b2Vec2(x, y));
+				float x, y;
+				unsigned int vertices;
+
+				fscanf(archivo, "%u", &vertices);
+				// Geom
+				for (unsigned int cont = 0; cont < vertices; ++cont)
+				{		
+					fscanf(archivo, "%f %f", &x, &y);
+					maxX = max(x, maxX);
+					minX = min(x, minX);
+					maxY = max(y, maxY);
+					minY = min(y, minY);
+					geomRead.push_back(b2Vec2(x, y));
+				}
+				// Partition
+				while (fscanf(archivo, "%f %f", &x, &y) != EOF)
+				{
+					particiones.push_back(b2Vec2(x, y));
+				}
+
+				fclose(archivo);
 			}
 
+			try {
+				// Vertex Geom
 				b2BodyDef bd;
 				b2Body* ground = m_world->CreateBody(&bd);
-				b2ChainShape bodyGeom;						
+				b2ChainShape bodyGeom;
 
-				//for (int i = 0; i < geomRead.size(); ++i){
-				//	//geomRead[i] -= b2Vec2(600.0f, 800.0f);
-				//	//geomRead[i] = geomRead[i].Skew4();
-				//}
-
-				//bodyBrain.CreateLoop(brain, 93);
 				bodyGeom.CreateLoop(&geomRead[0], geomRead.size());
 
-				b2FixtureDef def;
-				def.shape = &bodyGeom;
-				ground->CreateFixture(&def);
+				b2FixtureDef defB;
+				defB.shape = &bodyGeom;
+				ground->CreateFixture(&defB);
 
-				// Create brodman
-				{
-					b2BodyDef bd;
-					b2Body* ground = m_world->CreateBody(&bd);
-					b2ChainShape bodybrodman;
-					b2Vec2 brodman[4] = {
-						b2Vec2(286.0f, 538.0f), b2Vec2(586.0f, 115.0f),
-						b2Vec2(819.0f, 528.0f), b2Vec2(1095.0f, 450.0f)
-					};
+				// Partition Vertex
+				b2BodyDef bdP;
+				b2Body* groundP = m_world->CreateBody(&bdP);
+				b2ChainShape partitionGeom;
 
-					for (int i = 0; i < 4; ++i){
-						brodman[i] -= b2Vec2(600.0f, 800.0f);
-						brodman[i] = brodman[i].Skew4();
-					}
+				if (particiones.size() < 2) throw (int)particiones.size();
+				partitionGeom.CreateChain(&particiones[0], particiones.size());
 
-					bodybrodman.CreateChain(brodman, 4);
-					b2FixtureDef def;
-					def.shape = &bodybrodman;
-					ground->CreateFixture(&def);
-				}
+				b2FixtureDef defP;
+				defP.shape = &partitionGeom;
+				groundP->CreateFixture(&defP);
 			}
+			catch (int error) {
+				cerr << error <<" punto. Debe contener al menos 2 puntos"<<endl;
+			}				
 
-
+			// { Read Neuron File}
+			if (neuronFile_ != "")
+			{
+			
+			}
 			// Don't restart the test when changing particle types.
 			TestMain::SetRestartOnParticleParameterChange(false);
 			// Limit the set of particle types.
@@ -175,6 +134,8 @@ class Scene5 : public Test {
 		b2Body* m_barrierBody2;
 		b2Body* m_barrierBody3;
 		b2ParticleGroup* m_particleGroup;
+
+		float maxX, minX, maxY, minY;
 
 	private:
 		static const int32 k_maxParticleCount;
