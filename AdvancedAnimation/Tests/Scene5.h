@@ -17,6 +17,7 @@ class Scene5 : public Test {
 				
 			vector<b2Vec2> geomRead;
 			vector<b2Vec2> particiones;
+			vector<float>  time;
 
 			maxX = -FLT_MAX;
 			minX = FLT_MAX;
@@ -80,9 +81,16 @@ class Scene5 : public Test {
 			}				
 
 			// { Read Neuron File}
-			if (neuronFile_ != "")
-			{
-			
+			if (neuronFile_ != ""){
+				//FILE *archivo;
+				//archivo = fopen(neuronFile_.c_str(), "r");
+				//
+				//float tiempo;
+				//
+				//while (fscanf(archivo, "%f", &tiempo) != EOF)
+				//{
+				//	time.push_back(tiempo);
+				//}
 			}
 			// Don't restart the test when changing particle types.
 			TestMain::SetRestartOnParticleParameterChange(false);
