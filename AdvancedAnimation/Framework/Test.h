@@ -6,14 +6,16 @@
 #include "ParticleParameter.h"
 
 #include <stdlib.h>
+#include <string>
 
 class Test;
 struct Settings;
-
 typedef Test* TestCreateFcn();
 
 #define	RAND_LIMIT	32767
 #define DRAW_STRING_NEW_LINE 25
+
+using namespace std;
 
 /// Random number in range [-1,1]
 inline float32 RandomFloat(){
@@ -123,8 +125,11 @@ struct ContactPoint{
 };
 
 class Test : public b2ContactListener{
+	
+
 	public:
 		Test();
+		Test(const string geomFile, const string neuronFile);
 		virtual ~Test();
 
 		void DrawTitle(const char *string);
@@ -192,6 +197,9 @@ class Test : public b2ContactListener{
 
 		ParticleParameter::Value* m_particleParameters;
 		ParticleParameter::Definition m_particleParameterDef;
+
+		string geomFile_;
+		string neuronFile_;
 
 		static const b2ParticleColor k_ParticleColors[];
 		static const uint32 k_ParticleColorsCount;

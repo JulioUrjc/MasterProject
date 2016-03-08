@@ -62,6 +62,45 @@ Test::Test(){
 	m_particleParameters = NULL;
 }
 
+Test::Test(const string geomFile, const string neuronFile){
+	const b2ParticleSystemDef particleSystemDef;
+	b2Vec2 gravity;
+	gravity.Set(0.0f, -10.0f);
+	m_world = new b2World(gravity);
+	m_particleSystem = m_world->CreateParticleSystem(&particleSystemDef);
+	m_bomb = NULL;
+	m_textLine = 30;
+	m_mouseJoint = NULL;
+	m_pointCount = 0;
+
+	m_destructionListener.test = this;
+	m_world->SetDestructionListener(&m_destructionListener);
+	m_world->SetContactListener(this);
+	m_world->SetDebugDraw(&m_debugDraw);
+
+	m_particleSystem->SetGravityScale(0.4f);
+	m_particleSystem->SetDensity(1.2f);
+
+	m_bombSpawning = false;
+	m_stepCount = 0;
+
+	m_mouseWorld = b2Vec2_zero;
+	m_mouseTracing = false;
+	m_mouseTracerPosition = b2Vec2_zero;
+	m_mouseTracerVelocity = b2Vec2_zero;
+
+	b2BodyDef bodyDef;
+	m_groundBody = m_world->CreateBody(&bodyDef);
+
+	memset(&m_maxProfile, 0, sizeof(b2Profile));
+	memset(&m_totalProfile, 0, sizeof(b2Profile));
+
+	m_particleParameters = NULL;
+
+	geomFile_ = geomFile;
+	neuronFile_ = neuronFile;
+}
+
 Test::~Test(){
 	delete m_world;
 	m_world = NULL;

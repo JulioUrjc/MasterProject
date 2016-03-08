@@ -195,3 +195,7 @@ FakesAssemblies/
 # Visual Studio 6 workspace options file
 *.opt
 /AdvancedAnimationProject.sdf
+/AdvancedAnimationProject.v12.suo
+/AdvancedAnimation/Debug/*.pdb
+/AdvancedAnimation/Objcode/Scenes.tlog/*.tlog
+/AdvancedAnimation/*.user

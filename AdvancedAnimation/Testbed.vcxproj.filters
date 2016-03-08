@@ -57,6 +57,9 @@
     <ClInclude Include="Tests\Scene4.h">
       <Filter>Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\Scene5.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">
