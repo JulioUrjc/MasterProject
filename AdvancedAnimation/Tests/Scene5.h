@@ -111,7 +111,7 @@ class Scene5 : public Test {
 
 			double seg = difftime(currentTime, initHour);
 
-			m_debugDraw.DrawString(700, 60, "Time { %d : %d }", seg/60, seg);
+			m_debugDraw.DrawString(700, 60, "Time { %02u : %02u }", (unsigned int)seg / 60, (unsigned int)seg % 60);
 			//m_debugDraw.DrawString(700, 75, "Barrier Pos: %f", m_position);
 			//m_debugDraw.DrawString(700, 90, "Num Particles2: %i", bottom2);
 			//m_debugDraw.DrawString(700, 105, "Barrier Pos2: %f", m_position2);
