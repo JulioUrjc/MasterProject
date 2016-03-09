@@ -17,7 +17,7 @@ class Scene5 : public Test {
 				
 			vector<b2Vec2> geomRead;
 			vector<b2Vec2> particiones;
-			vector<float>  time;
+			vector<float>  times;
 
 			maxX = -FLT_MAX;
 			minX = FLT_MAX;
@@ -97,20 +97,21 @@ class Scene5 : public Test {
 			// Limit the set of particle types.
 			TestMain::SetParticleParameters(k_paramDef, k_paramDefCount);
 			// Create the particles.
-			//ResetParticles();
+			//ResetParticles();			
+			time(&initHour);
 		}		
 
 		void setFiles(const string geomFile, const string neuronFile){ geomFile_ = geomFile; neuronFile_ = neuronFile; }
 		
 		virtual void Step(Settings* settings){
-			Test::Step(settings);
+			Test::Step(settings);		
 
-			// Number of particles below (bottom) the barrier.
-			// int32 top = 0;
-		
-			
+			time_t currentTime;
+			time(&currentTime);
 
-			m_debugDraw.DrawString(700, 60, "Time: %d", 0.5);
+			double seg = difftime(currentTime, initHour);
+
+			m_debugDraw.DrawString(700, 60, "Time { %d : %d }", seg/60, seg);
 			//m_debugDraw.DrawString(700, 75, "Barrier Pos: %f", m_position);
 			//m_debugDraw.DrawString(700, 90, "Num Particles2: %i", bottom2);
 			//m_debugDraw.DrawString(700, 105, "Barrier Pos2: %f", m_position2);
@@ -144,6 +145,8 @@ class Scene5 : public Test {
 		b2ParticleGroup* m_particleGroup;
 
 		float maxX, minX, maxY, minY;
+
+		time_t initHour;
 
 	private:
 		static const int32 k_maxParticleCount;
