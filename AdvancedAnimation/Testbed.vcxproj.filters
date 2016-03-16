@@ -60,6 +60,9 @@
     <ClInclude Include="Tests\Scene5.h">
       <Filter>Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\Scene6.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">
