@@ -264,6 +264,7 @@ class Scene1 : public Test{
 	}
 
 	float32 GetDefaultViewZoom() const{ return Zoom; }
+	void GetCam(float &w, float &h) const{ w = 0.0f; h = 20.0f * Zoom; }
 	static Test* Create(){ return new Scene1; }
 
 	private:

@@ -157,6 +157,7 @@ class Test : public b2ContactListener{
 
 		void ShiftOrigin(const b2Vec2& newOrigin);
 		virtual float32 GetDefaultViewZoom() const;
+		virtual void GetCam(float &w, float &h ) const;
 		void SetDefaultViewZoom(float32 zoom);
 
 		// Apply a preset range of colors to a particle group.

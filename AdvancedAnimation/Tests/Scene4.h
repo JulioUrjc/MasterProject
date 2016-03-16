@@ -314,6 +314,7 @@ class Scene4 : public Test{
 	// Determine whether a point is in the container.
 	bool InContainer(const b2Vec2& p) const{ return p.x >= -k_containerHalfWidth && p.x <= k_containerHalfWidth && p.y >= 0.0f && p.y <= k_containerHalfHeight * 2.0f;}
 	float32 GetDefaultViewZoom() const{ return Zoom; }
+	void GetCam(float &w, float &h) const{ w = 0.0f; h = 20.0f * Zoom; }
 	static Test* Create(){ return new Scene4; }
 
 	private:

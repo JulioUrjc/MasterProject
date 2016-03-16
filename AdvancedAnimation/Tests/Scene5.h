@@ -10,19 +10,17 @@ using namespace std;
 class Scene5 : public Test {
 	public:
 		Scene5(){		
-			Zoom = 25.0f;
 			m_world->SetGravity(b2Vec2(0, -10));
+			// Configure particle system parameters.
+			//m_particleSystem->SetRadius(100.0f);
+			//m_particleSystem->SetMaxParticleCount(100000);
+			//m_particleSystem->SetDestructionByAge(true);
 
 			TestMain::GetFilesNames(geomFile_, neuronFile_);
 				
 			vector<b2Vec2> geomRead;
 			vector<b2Vec2> particiones;
-			vector<float>  times;
-
-			maxX = -FLT_MAX;
-			minX = FLT_MAX;
-			maxY = -FLT_MAX;
-			minY = FLT_MAX;
+			vector<float>  times;		
 
 			// { Read Geom and Partition File}
 			if (geomFile_ != ""){
@@ -30,9 +28,14 @@ class Scene5 : public Test {
 				archivo = fopen(geomFile_.c_str(), "r");
 
 				float x, y;
-				unsigned int vertices;
+				int maxParticles;
+				unsigned int r, g, b, a;
+				unsigned int vertices, partitions, emiters;
 
 				fscanf(archivo, "%u", &vertices);
+				fscanf(archivo, "%u", &partitions);
+				fscanf(archivo, "%u", &emiters);
+
 				// Geom
 				for (unsigned int cont = 0; cont < vertices; ++cont)
 				{		
@@ -43,43 +46,71 @@ class Scene5 : public Test {
 					minY = min(y, minY);
 					geomRead.push_back(b2Vec2(x, y));
 				}
+				Zoom = max((maxX - minX), (maxY - minY))/2;
 				// Partition
-				while (fscanf(archivo, "%f %f", &x, &y) != EOF)
-				{
+				for (unsigned int cont = 0; cont < partitions; ++cont){
+					fscanf(archivo, "%f %f", &x, &y);
 					particiones.push_back(b2Vec2(x, y));
 				}
+				
+				if (emiters > 0){
+					fscanf(archivo, "%f %d", &x, &maxParticles);
 
+					m_particleSystem->SetRadius(x);
+					m_particleSystem->SetMaxParticleCount(maxParticles);
+					m_particleSystem->SetDestructionByAge(true);
+
+					const float32 faucetLength = m_particleSystem->GetRadius() * 2.0f * k_faucetLength;
+
+					for (unsigned int cont = 0; cont < emiters; ++cont){
+						RadialEmitter rEmit;
+
+						rEmit.SetParticleSystem(m_particleSystem);
+						fscanf(archivo, "%f %f", &x, &y);
+						rEmit.SetPosition(b2Vec2(x, y));
+						fscanf(archivo, "%f %f", &x, &y);
+						rEmit.SetVelocity(b2Vec2(x, y));
+						rEmit.SetSize(b2Vec2(0.0f, faucetLength));
+						fscanf(archivo, "%u %u %u %u", &r, &g, &b, &a);
+						rEmit.SetColor(b2ParticleColor((uint8)r, (uint8)g, (uint8)b, (uint8)a));
+						fscanf(archivo, "%f", &x);
+						rEmit.SetEmitRate(x);
+						rEmit.SetParticleFlags(TestMain::GetParticleParameterValue());
+
+						m_emitters.push_back(rEmit);
+					}
+				}
 				fclose(archivo);
+			
+				try {
+					if (geomRead.size() < 2) throw (int)geomRead.size();
+					// Vertex Geom
+					b2BodyDef bd;
+					b2Body* ground = m_world->CreateBody(&bd);
+					b2ChainShape bodyGeom;
+
+					bodyGeom.CreateLoop(&geomRead[0], geomRead.size());
+
+					b2FixtureDef defB;
+					defB.shape = &bodyGeom;
+					ground->CreateFixture(&defB);
+
+					if (particiones.size() < 2) throw (int) particiones.size();
+					// Partition Vertex
+					b2BodyDef bdP;
+					b2Body* groundP = m_world->CreateBody(&bdP);
+					b2ChainShape partitionGeom;
+					
+					partitionGeom.CreateChain(&particiones[0], particiones.size());
+
+					b2FixtureDef defP;
+					defP.shape = &partitionGeom;
+					groundP->CreateFixture(&defP);
+				}
+				catch (int error) {
+					cerr << error <<" punto. Debe contener al menos 2 puntos"<<endl;
+				}				
 			}
-
-			try {
-				// Vertex Geom
-				b2BodyDef bd;
-				b2Body* ground = m_world->CreateBody(&bd);
-				b2ChainShape bodyGeom;
-
-				bodyGeom.CreateLoop(&geomRead[0], geomRead.size());
-
-				b2FixtureDef defB;
-				defB.shape = &bodyGeom;
-				ground->CreateFixture(&defB);
-
-				// Partition Vertex
-				b2BodyDef bdP;
-				b2Body* groundP = m_world->CreateBody(&bdP);
-				b2ChainShape partitionGeom;
-
-				if (particiones.size() < 2) throw (int)particiones.size();
-				partitionGeom.CreateChain(&particiones[0], particiones.size());
-
-				b2FixtureDef defP;
-				defP.shape = &partitionGeom;
-				groundP->CreateFixture(&defP);
-			}
-			catch (int error) {
-				cerr << error <<" punto. Debe contener al menos 2 puntos"<<endl;
-			}				
-
 			// { Read Neuron File}
 			if (neuronFile_ != ""){
 				//FILE *archivo;
@@ -103,14 +134,44 @@ class Scene5 : public Test {
 
 		void setFiles(const string geomFile, const string neuronFile){ geomFile_ = geomFile; neuronFile_ = neuronFile; }
 		
+		b2ParticleColor colorPorcentaje(int p){
+			int intervalo = (p>0) + (p>20) + (p>40) + (p>60) + (p>80);
+			switch (intervalo){
+			case 0: return b2ParticleColor(0, 0, 0, 0); // Transparente
+			case 1:	return b2ParticleColor(0, 255, 0, 255); // green
+			case 2: return b2ParticleColor(255, 0, 255, 255);
+			case 3: return b2ParticleColor(0, 0, 255, 255); // blue
+			case 4: return b2ParticleColor(255, 255, 0, 255);
+			case 5: return b2ParticleColor(255, 0, 0, 255); //red
+			default:
+				return b2ParticleColor(255, 255, 255, 255);
+				break;
+			}
+		}
+
 		virtual void Step(Settings* settings){
 			Test::Step(settings);		
+
+			const float32 dt = 1.0f / settings->hz;		
+			m_particleColorOffset += dt;
+			// Keep m_particleColorOffset in the range 0.0f..k_ParticleColorsCount.
+			if (m_particleColorOffset >= (float32)k_ParticleColorsCount){ m_particleColorOffset -= (float32)k_ParticleColorsCount; }
+			// Propagate the currently selected particle flags.
+			for (unsigned int i = 0; i < m_emitters.size(); ++i){
+				m_emitters.at(i).SetParticleFlags(TestMain::GetParticleParameterValue());
+				//m_emitters.at(i).SetColor(colorPorcentaje(3));
+				m_emitters.at(i).Step(dt, NULL, 0); // Create the particles.
+			}
 
 			time_t currentTime;
 			time(&currentTime);
 
 			double seg = difftime(currentTime, initHour);
-
+			
+			if (seg > 10){
+				m_emitters.at(2).SetPosition(b2Vec2(1000.0f, -600.0f));	
+				
+			}
 			m_debugDraw.DrawString(700, 60, "Time { %02u : %02u }", (unsigned int)seg / 60, (unsigned int)seg % 60);
 			//m_debugDraw.DrawString(700, 75, "Barrier Pos: %f", m_position);
 			//m_debugDraw.DrawString(700, 90, "Num Particles2: %i", bottom2);
@@ -121,30 +182,28 @@ class Scene5 : public Test {
 
 		// Determine whether a point is in the container.
 		bool InContainer(const b2Vec2& p) const{ return p.x >= -k_containerHalfWidth && p.x <= k_containerHalfWidth && p.y >= 0.0f && p.y <= k_containerHalfHeight * 2.0f; }
-		float32 GetDefaultViewZoom() const{ return Zoom; }
+		float32 GetDefaultViewZoom() const{ return (Zoom <= 1) ? pow(Zoom, 2) : sqrt(Zoom);}
+		void GetCam(float &w, float &h) const{ w = (maxX + minX)/2; h = (maxY + minY)/2; }
 		static Test* Create(){ return new Scene5; }
 
 	private:
 		float32 m_particleColorOffset;
-		RadialEmitter m_emitter;
-		RadialEmitter m_emitter2;
-		RadialEmitter m_emitter3;
-		RadialEmitter m_emitter4;
+		vector<RadialEmitter> m_emitters;
 		int32 porcentaje;
 		int32 porcentaje2;
 		int32 porcentaje3;
 		int32 porcentaje4;
 
 		float32 m_position;
-		float32 m_position2;
-		float32 m_position3;
+		//float32 m_position2;
+		//float32 m_position3;
 
 		b2Body* m_barrierBody;
-		b2Body* m_barrierBody2;
-		b2Body* m_barrierBody3;
+		//b2Body* m_barrierBody2;
+		//b2Body* m_barrierBody3;
 		b2ParticleGroup* m_particleGroup;
 
-		float maxX, minX, maxY, minY;
+		float maxX = -FLT_MAX, minX = FLT_MAX, maxY = -FLT_MAX, minY = FLT_MAX;
 
 		time_t initHour;
 

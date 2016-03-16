@@ -176,7 +176,10 @@ namespace TestMain{
 				entry = g_testEntries + testIndex;
 				test = entry->createFcn();
 				viewZoom = test->GetDefaultViewZoom();
-				settings.viewCenter.Set(0.0f, 20.0f * viewZoom);
+				float w, h;
+				test->GetCam(w, h);
+				//settings.viewCenter.Set(w, h * viewZoom);
+				settings.viewCenter.Set(w, h);
 				Resize(width, height);
 			}
 

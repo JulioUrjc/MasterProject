@@ -482,6 +482,7 @@ void Test::Step(Settings* settings){
 
 void Test::ShiftOrigin(const b2Vec2& newOrigin){ m_world->ShiftOrigin(newOrigin); }
 float32 Test::GetDefaultViewZoom() const{ return Zoom; }
+void Test::GetCam(float &w, float &h) const{ w = 0.0f; h = 20.0f; }
 void Test::SetDefaultViewZoom(float32 zoom){ Zoom = zoom; }
 
 void Test::ColorParticleGroup(b2ParticleGroup * const group, uint32 particlesPerColor){
