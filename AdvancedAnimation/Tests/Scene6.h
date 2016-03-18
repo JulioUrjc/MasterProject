@@ -188,7 +188,7 @@ public:
 		double seg = difftime(currentTime, initHour);
 
 		if (seg > 10){
-			m_emitters.at(2).SetPosition(b2Vec2(1000.0f, -600.0f));
+			//m_emitters.at(2).SetPosition(b2Vec2(1000.0f, -600.0f));
 
 		}
 		m_debugDraw.DrawString(700, 60, "Time { %02u : %02u }", (unsigned int)seg / 60, (unsigned int)seg % 60);

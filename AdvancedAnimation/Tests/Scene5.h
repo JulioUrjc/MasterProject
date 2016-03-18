@@ -10,7 +10,7 @@ using namespace std;
 class Scene5 : public Test {
 	public:
 		Scene5(){		
-			m_world->SetGravity(b2Vec2(0, -10));
+			m_world->SetGravity(b2Vec2(0, 0));
 			// Configure particle system parameters.
 			//m_particleSystem->SetRadius(100.0f);
 			//m_particleSystem->SetMaxParticleCount(100000);

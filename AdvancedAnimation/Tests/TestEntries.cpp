@@ -20,6 +20,6 @@ TestEntry g_testEntries[] ={
 	{ "Scene3", Scene3::Create},
 	{ "Scene4", Scene4::Create},
 	{ "Scene5", Scene5::Create},
-	{ "Scene6", Scene5::Create },
+	{ "Scene6", Scene6::Create },
 	{NULL, NULL}
 };
