@@ -11,33 +11,33 @@ class Scene6 : public Test {
 public:
 	Scene6(){
 		m_world->SetGravity(b2Vec2(0, -10));
-		// Configure particle system parameters.
-		//m_particleSystem->SetRadius(100.0f);
-		//m_particleSystem->SetMaxParticleCount(100000);
-		//m_particleSystem->SetDestructionByAge(true);
 
 		TestMain::GetFilesNames(geomFile_, neuronFile_);
 
-		vector<b2Vec2> geomRead;
-		vector<b2Vec2> particiones;
+		vector<vector<b2Vec2>> geomRead;
+		vector<vector<b2Vec2>> particiones;
 		vector<b2Vec2> neurons;
+		vector<int> loops;
 		vector<float>  times;
 
 		// { Read Geom and Partition File}
-		if (geomFile_ != ""){
+		for (unsigned int numfile = 0; numfile < geomFile_.size(); ++numfile){
 			FILE *archivo;
-			archivo = fopen(geomFile_.c_str(), "r");
+			archivo = fopen(geomFile_.at(numfile).c_str(), "r");
 
 			float x, y;
 			int maxParticles;
 			unsigned int r, g, b, a;
-			unsigned int vertices, partitions, emiters;
-
+			unsigned int vertices, partitions, emiters, loop;
+			
 			fscanf(archivo, "%u", &vertices);
 			fscanf(archivo, "%u", &partitions);
 			fscanf(archivo, "%u", &emiters);
+			fscanf(archivo, "%d", &loop);
+			loops.push_back(loop);
 
 			// Geom
+			geomRead.push_back(vector<b2Vec2>());
 			for (unsigned int cont = 0; cont < vertices; ++cont)
 			{
 				fscanf(archivo, "%f %f", &x, &y);
@@ -45,13 +45,14 @@ public:
 				minX = min(x, minX);
 				maxY = max(y, maxY);
 				minY = min(y, minY);
-				geomRead.push_back(b2Vec2(x, y));
+				geomRead.at(numfile).push_back(b2Vec2(x, y));
 			}
 			Zoom = max((maxX - minX), (maxY - minY)) / 2;
 			// Partition
+			particiones.push_back(vector<b2Vec2>());
 			for (unsigned int cont = 0; cont < partitions; ++cont){
 				fscanf(archivo, "%f %f", &x, &y);
-				particiones.push_back(b2Vec2(x, y));
+				particiones.at(numfile).push_back(b2Vec2(x, y));
 			}
 
 			if (emiters > 0){
@@ -83,34 +84,42 @@ public:
 			}
 			fclose(archivo);
 
-			try {
-				if (geomRead.size() < 2) throw (int)geomRead.size();
-				// Vertex Geom
-				b2BodyDef bd;
-				b2Body* ground = m_world->CreateBody(&bd);
-				b2ChainShape bodyGeom;
+			
+			for (unsigned int shape = 0; shape < geomRead.size(); ++shape){
+				try {
+					if (geomRead.at(shape).size() < 2) throw (int)geomRead.at(shape).size();
+					// Vertex Geom
+					b2BodyDef bd;
+					b2Body* ground = m_world->CreateBody(&bd);
+					b2ChainShape bodyGeom;
 
-				bodyGeom.CreateLoop(&geomRead[0], geomRead.size());
+					if (loops.at(shape)){
+						bodyGeom.CreateLoop(&(geomRead.at(shape))[0], geomRead.at(shape).size());		
+					}
+					else{
+						bodyGeom.CreateChain(&(geomRead.at(shape))[0], geomRead.at(shape).size());
+					}
 
-				b2FixtureDef defB;
-				defB.shape = &bodyGeom;
-				ground->CreateFixture(&defB);
+					b2FixtureDef defB;
+					defB.shape = &bodyGeom;
+					ground->CreateFixture(&defB);
 
-				if (particiones.size() < 2) throw (int)particiones.size();
-				// Partition Vertex
-				b2BodyDef bdP;
-				b2Body* groundP = m_world->CreateBody(&bdP);
-				b2ChainShape partitionGeom;
+					if (particiones.at(shape).size() < 2) throw (int)particiones.at(shape).size();
+					// Partition Vertex
+					b2BodyDef bdP;
+					b2Body* groundP = m_world->CreateBody(&bdP);
+					b2ChainShape partitionGeom;
 
-				partitionGeom.CreateChain(&particiones[0], particiones.size());
+					partitionGeom.CreateChain(&particiones.at(shape)[0], particiones.at(shape).size());
 
-				b2FixtureDef defP;
-				defP.shape = &partitionGeom;
-				groundP->CreateFixture(&defP);
-			}
-			catch (int error) {
-				cerr << error << " punto. Debe contener al menos 2 puntos" << endl;
-			}
+					b2FixtureDef defP;
+					defP.shape = &partitionGeom;
+					groundP->CreateFixture(&defP);
+				}
+				catch (int error) {
+					cerr << "shape: " << shape <<" "<< error<<" puntos. Debe contener al menos 2 puntos" << endl;
+				}
+			}			
 		}
 		// { Read Neuron File}
 		if (neuronFile_ != ""){
@@ -151,7 +160,7 @@ public:
 		time(&initHour);
 	}
 
-	void setFiles(const string geomFile, const string neuronFile){ geomFile_ = geomFile; neuronFile_ = neuronFile; }
+	void setFiles(const vector<string> geomFile, const string neuronFile){ geomFile_ = geomFile; neuronFile_ = neuronFile; }
 
 	b2ParticleColor colorPorcentaje(int p){
 		int intervalo = (p>0) + (p>20) + (p>40) + (p>60) + (p>80);
@@ -181,7 +190,7 @@ public:
 			//m_emitters.at(i).SetColor(colorPorcentaje(3));
 			m_emitters.at(i).Step(dt, NULL, 0); // Create the particles.
 		}
-
+		
 		time_t currentTime;
 		time(&currentTime);
 
@@ -192,11 +201,6 @@ public:
 
 		}
 		m_debugDraw.DrawString(700, 60, "Time { %02u : %02u }", (unsigned int)seg / 60, (unsigned int)seg % 60);
-		//m_debugDraw.DrawString(700, 75, "Barrier Pos: %f", m_position);
-		//m_debugDraw.DrawString(700, 90, "Num Particles2: %i", bottom2);
-		//m_debugDraw.DrawString(700, 105, "Barrier Pos2: %f", m_position2);
-		//m_debugDraw.DrawString(700, 120, "Num Particles3: %i", bottom3);
-		//m_debugDraw.DrawString(700, 135, "Barrier Pos3: %f", m_position3);
 	}
 
 	// Determine whether a point is in the container.

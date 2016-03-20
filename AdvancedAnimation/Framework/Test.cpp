@@ -62,7 +62,7 @@ Test::Test(){
 	m_particleParameters = NULL;
 }
 
-Test::Test(const string geomFile, const string neuronFile){
+Test::Test(const vector<string> geomFile, const string neuronFile){
 	const b2ParticleSystemDef particleSystemDef;
 	b2Vec2 gravity;
 	gravity.Set(0.0f, -10.0f);

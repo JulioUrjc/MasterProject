@@ -1,4 +1,5 @@
-63 2 0
+63 2 0 0
+
 110 -468
 181 -547
 192 -583
@@ -65,3 +66,24 @@
 
 1 1
 2 2
+
+INDICE
+_______________________________
+
+numVerticesGeom numVerticesParticiones numEmisores shapeLoop
+
+VertexGeometry
+|
+|
+
+VertexPartitionss
+|
+|
+
+emisorRadio maxParticlesCount
+
+emisors
+|
+|
+
+(842px)

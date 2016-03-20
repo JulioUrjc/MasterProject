@@ -15,6 +15,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 namespace TestMain{
 		namespace{
@@ -32,7 +33,7 @@ namespace TestMain{
 			int32 framePeriod = 16;
 			int32 mainWindow;
 			float settingsHz = 60.0;
-			std::string geomFile_;
+			vector<std::string> geomFile_;
 			std::string neuronFile_;
 
 			#if ENABLE_GLUI
@@ -72,7 +73,7 @@ namespace TestMain{
 			particleParameter.SetDefinition(particleParameterDef, particleParameterDefCount);
 		}
 
-		void GetFilesNames(string &geomFile, string &neuronFile){
+		void GetFilesNames(vector<string> &geomFile, string &neuronFile){
 			geomFile = geomFile_;
 			neuronFile = neuronFile_;
 		}
@@ -452,9 +453,15 @@ namespace TestMain{
 int main(int argc, char** argv){
 	using namespace TestMain;
 
-	if (argc > 1) geomFile_ = argv[1];
-	if (argc > 2) neuronFile_ = argv[2];
-	cout << geomFile_ << "  " << neuronFile_ << endl;
+	if (argc > 1){
+		for (int i = 1; i < argc; ++i){
+			if (string(argv[i]) == "-f"){
+				neuronFile_ = argv[argc-1];
+				break;
+			}
+			geomFile_.push_back(argv[i]);
+		}
+	}
 
 	testCount = 0;
 	while (g_testEntries[testCount].createFcn != NULL){	++testCount; }

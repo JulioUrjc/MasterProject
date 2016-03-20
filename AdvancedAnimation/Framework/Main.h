@@ -9,7 +9,7 @@ namespace TestMain{
 	uint32 SetParticleParameterValue(uint32 value);
 	uint32 GetParticleParameterValue();
 	void SetParticleParameters(const ParticleParameter::Definition * const particleParameterDef, const uint32 particleParameterDefCount);
-	void GetFilesNames(std::string &geomFile, std::string &neuronFile);
+	void GetFilesNames(std::vector<std::string> &geomFile, std::string &neuronFile);
 } 
 
 #endif  // MAIN_H

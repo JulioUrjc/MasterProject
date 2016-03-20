@@ -1,0 +1,39 @@
+<html>
+
+    <head>
+        <title>July PFM</title>
+		<script language="JavaScript">
+
+			function coordenadas()
+			{
+				var fso, MiArchivo
+				fso = new ActiveXObject("Scripting.FileSystemObject");
+				MiArchivo = fso.OpenTextFile("mi.txt",8 , true);
+				
+
+				if( navigator.appName == "Microsoft Internet Explorer" )
+				{
+					x = window.event.clientX + document.body.scrollLeft;
+					y = window.event.clientY + document.body.scrollTop ;
+				}
+				else
+				{
+					x = event.clientX + document.body.scrollLeft;
+					y = event.clientY + document.body.scrollTop;
+				}
+
+				MiArchivo.WriteLine(x + " " + -1*y);
+				MiArchivo.Close;
+
+				document.body.innerHTML = "x: [" + x + "] - y: [" + y + "]<br/> <img src=\"grifo.jpg\" height=842 width=842>";
+			}
+
+		</script>
+    </head>
+
+    <body onclick="coordenadas();">
+		<br>
+		<img src="grifo.jpg"></img>
+    </body>
+
+</html>

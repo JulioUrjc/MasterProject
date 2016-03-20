@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <string>
+#include <vector>
 
 class Test;
 struct Settings;
@@ -129,7 +130,7 @@ class Test : public b2ContactListener{
 
 	public:
 		Test();
-		Test(const string geomFile, const string neuronFile);
+		Test(const vector<string> geomFile, const string neuronFile);
 		virtual ~Test();
 
 		void DrawTitle(const char *string);
@@ -199,7 +200,7 @@ class Test : public b2ContactListener{
 		ParticleParameter::Value* m_particleParameters;
 		ParticleParameter::Definition m_particleParameterDef;
 
-		string geomFile_;
+		vector<string> geomFile_;
 		string neuronFile_;
 
 		static const b2ParticleColor k_ParticleColors[];
