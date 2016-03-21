@@ -17,45 +17,62 @@ class Scene5 : public Test {
 			vector<vector<b2Vec2>> geomRead;
 			vector<vector<b2Vec2>> particiones;
 			vector<b2Vec2> neurons;
+			vector<unsigned int> numGvertex;
+			vector<unsigned int> numPvertex;
 			vector<int> loops;
-			vector<float>  times;	
-			
+			vector<float>  times;
+
 			// { Read Geom and Partition File}
 			for (unsigned int numfile = 0; numfile < geomFile_.size(); ++numfile){
-
 				FILE *archivo;
 				archivo = fopen(geomFile_.at(numfile).c_str(), "r");
 
 				float x, y;
 				int maxParticles;
 				unsigned int r, g, b, a;
-				unsigned int vertices, partitions, emiters, loop;
+				unsigned int shapes, partitions, numVertex, emiters, loop;
 
-				fscanf(archivo, "%u", &vertices);
+				fscanf(archivo, "%u", &shapes);
+				for (unsigned int i = 0; i < shapes; ++i){
+					fscanf(archivo, "%u", &numVertex);
+					numGvertex.push_back(numVertex);
+				}
 				fscanf(archivo, "%u", &partitions);
+				for (unsigned int i = 0; i < partitions; ++i){
+					fscanf(archivo, "%u", &numVertex);
+					numPvertex.push_back(numVertex);
+				}
 				fscanf(archivo, "%u", &emiters);
-				fscanf(archivo, "%d", &loop);
-				loops.push_back(loop);
+				for (unsigned int i = 0; i < shapes; ++i){
+					fscanf(archivo, "%d", &loop);
+					loops.push_back(loop);
+				}
 
 				// Geom
-				geomRead.push_back(vector<b2Vec2>());
-				for (unsigned int cont = 0; cont < vertices; ++cont)
-				{		
-					fscanf(archivo, "%f %f", &x, &y);
-					maxX = max(x, maxX);
-					minX = min(x, minX);
-					maxY = max(y, maxY);
-					minY = min(y, minY);
-					geomRead.at(numfile).push_back(b2Vec2(x, y));
+				for (unsigned int shape = 0; shape < numGvertex.size(); ++shape){
+					geomRead.push_back(vector<b2Vec2>());
+					for (unsigned int cont = 0; cont < numGvertex.at(shape); ++cont)
+					{
+						fscanf(archivo, "%f %f", &x, &y);
+						maxX = max(x, maxX);
+						minX = min(x, minX);
+						maxY = max(y, maxY);
+						minY = min(y, minY);
+						geomRead.at(geomRead.size() - 1).push_back(b2Vec2(x, y));
+					}
 				}
-				Zoom = max((maxX - minX), (maxY - minY))/2;
-				// Partition		
-				particiones.push_back(vector<b2Vec2>());
-				for (unsigned int cont = 0; cont < partitions; ++cont){
-					fscanf(archivo, "%f %f", &x, &y);
-					particiones.at(numfile).push_back(b2Vec2(x, y));
+				Zoom = max((maxX - minX), (maxY - minY)) / 2;
+
+				// Partition
+				for (unsigned int part = 0; part < numPvertex.size(); ++part){
+					particiones.push_back(vector<b2Vec2>());
+					for (unsigned int cont = 0; cont < numPvertex.at(part); ++cont){
+						fscanf(archivo, "%f %f", &x, &y);
+						particiones.at(particiones.size() - 1).push_back(b2Vec2(x, y));
+					}
 				}
-				
+
+				//Emisores
 				if (emiters > 0){
 					fscanf(archivo, "%f %d", &x, &maxParticles);
 
@@ -84,7 +101,8 @@ class Scene5 : public Test {
 					}
 				}
 				fclose(archivo);
-			
+
+				// Geom Scene
 				for (unsigned int shape = 0; shape < geomRead.size(); ++shape){
 					try {
 						if (geomRead.at(shape).size() < 2) throw (int)geomRead.at(shape).size();
@@ -103,24 +121,33 @@ class Scene5 : public Test {
 						b2FixtureDef defB;
 						defB.shape = &bodyGeom;
 						ground->CreateFixture(&defB);
+					}
+					catch (int error) {
+						cerr << "shape: " << shape << " " << error << " puntos. Debe contener al menos 2 puntos" << endl;
+					}
+				}
 
-						if (particiones.at(shape).size() < 2) throw (int)particiones.at(shape).size();
+				// Partitions Scene
+				for (unsigned int part = 0; part < particiones.size(); ++part){
+					try {
+						if (particiones.at(part).size() < 2) throw (int)particiones.at(part).size();
 						// Partition Vertex
 						b2BodyDef bdP;
 						b2Body* groundP = m_world->CreateBody(&bdP);
 						b2ChainShape partitionGeom;
 
-						partitionGeom.CreateChain(&particiones.at(shape)[0], particiones.at(shape).size());
+						partitionGeom.CreateChain(&(particiones.at(part))[0], particiones.at(part).size());
 
 						b2FixtureDef defP;
 						defP.shape = &partitionGeom;
 						groundP->CreateFixture(&defP);
 					}
 					catch (int error) {
-						cerr << "shape: " << shape << " " << error << " punto. Debe contener al menos 2 puntos" << endl;
+						cerr << "part: " << part << " " << error << " puntos. Debe contener al menos 2 puntos" << endl;
 					}
 				}
 			}
+
 			// { Read Neuron File}
 			if (neuronFile_ != ""){
 				FILE *archivoNeuron;
@@ -198,7 +225,6 @@ class Scene5 : public Test {
 			
 			if (seg > 10){
 				if (m_emitters.size() > 1)m_emitters.at(2).SetPosition(b2Vec2(1000.0f, -600.0f));	
-			
 			}
 			m_debugDraw.DrawString(700, 60, "Time { %02u : %02u }", (unsigned int)seg / 60, (unsigned int)seg % 60);
 			//m_debugDraw.DrawString(700, 75, "Barrier Pos: %f", m_position);

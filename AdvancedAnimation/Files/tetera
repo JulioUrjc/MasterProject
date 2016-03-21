@@ -1,6 +1,6 @@
-63 2 0 0
+1 63 1 2 0 1
 
-110 -468
+150 -468
 181 -547
 192 -583
 203 -627
@@ -61,22 +61,23 @@
 240 -576
 227 -530
 222 -518
-191 -470
-186 -466
+231 -470
+236 -466
 
 1 1
 2 2
 
+
 INDICE
 _______________________________
 
-numVerticesGeom numVerticesParticiones numEmisores shapeLoop
+numShapes numVerticesXGeom numPartitions numVerticesXPartitions numEmisores shapesLoop
 
 VertexGeometry
 |
 |
 
-VertexPartitionss
+VertexPartitions
 |
 |
 

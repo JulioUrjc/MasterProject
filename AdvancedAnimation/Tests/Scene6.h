@@ -17,6 +17,8 @@ public:
 		vector<vector<b2Vec2>> geomRead;
 		vector<vector<b2Vec2>> particiones;
 		vector<b2Vec2> neurons;
+		vector<unsigned int> numGvertex;
+		vector<unsigned int> numPvertex;
 		vector<int> loops;
 		vector<float>  times;
 
@@ -28,33 +30,49 @@ public:
 			float x, y;
 			int maxParticles;
 			unsigned int r, g, b, a;
-			unsigned int vertices, partitions, emiters, loop;
-			
-			fscanf(archivo, "%u", &vertices);
+			unsigned int shapes, partitions, numVertex, emiters, loop;
+
+			fscanf(archivo, "%u", &shapes);
+			for (unsigned int i = 0; i < shapes; ++i){
+				fscanf(archivo, "%u", &numVertex);
+				numGvertex.push_back(numVertex);
+			}
 			fscanf(archivo, "%u", &partitions);
+			for (unsigned int i = 0; i < partitions; ++i){
+				fscanf(archivo, "%u", &numVertex);
+				numPvertex.push_back(numVertex);
+			}
 			fscanf(archivo, "%u", &emiters);
-			fscanf(archivo, "%d", &loop);
-			loops.push_back(loop);
+			for (unsigned int i = 0; i < shapes; ++i){
+				fscanf(archivo, "%d", &loop);
+				loops.push_back(loop);
+			}
 
 			// Geom
-			geomRead.push_back(vector<b2Vec2>());
-			for (unsigned int cont = 0; cont < vertices; ++cont)
-			{
-				fscanf(archivo, "%f %f", &x, &y);
-				maxX = max(x, maxX);
-				minX = min(x, minX);
-				maxY = max(y, maxY);
-				minY = min(y, minY);
-				geomRead.at(numfile).push_back(b2Vec2(x, y));
+			for (unsigned int shape = 0; shape < numGvertex.size(); ++shape){
+				geomRead.push_back(vector<b2Vec2>());
+				for (unsigned int cont = 0; cont < numGvertex.at(shape); ++cont)
+				{
+					fscanf(archivo, "%f %f", &x, &y);
+					maxX = max(x, maxX);
+					minX = min(x, minX);
+					maxY = max(y, maxY);
+					minY = min(y, minY);
+					geomRead.at(geomRead.size()-1).push_back(b2Vec2(x, y));
+				}
 			}
 			Zoom = max((maxX - minX), (maxY - minY)) / 2;
+
 			// Partition
-			particiones.push_back(vector<b2Vec2>());
-			for (unsigned int cont = 0; cont < partitions; ++cont){
-				fscanf(archivo, "%f %f", &x, &y);
-				particiones.at(numfile).push_back(b2Vec2(x, y));
+			for (unsigned int part = 0; part < numPvertex.size(); ++part){
+				particiones.push_back(vector<b2Vec2>());
+				for (unsigned int cont = 0; cont < numPvertex.at(part); ++cont){
+					fscanf(archivo, "%f %f", &x, &y);
+					particiones.at(particiones.size()-1).push_back(b2Vec2(x, y));
+				}
 			}
 
+			//Emisores
 			if (emiters > 0){
 				fscanf(archivo, "%f %d", &x, &maxParticles);
 
@@ -84,7 +102,7 @@ public:
 			}
 			fclose(archivo);
 
-			
+			// Geom Scene
 			for (unsigned int shape = 0; shape < geomRead.size(); ++shape){
 				try {
 					if (geomRead.at(shape).size() < 2) throw (int)geomRead.at(shape).size();
@@ -102,25 +120,34 @@ public:
 
 					b2FixtureDef defB;
 					defB.shape = &bodyGeom;
-					ground->CreateFixture(&defB);
+					ground->CreateFixture(&defB);					
+				}
+				catch (int error) {
+					cerr << "shape: " << shape <<" "<< error<<" puntos. Debe contener al menos 2 puntos" << endl;
+				}
+			}
 
-					if (particiones.at(shape).size() < 2) throw (int)particiones.at(shape).size();
+			// Partitions Scene
+			for (unsigned int part = 0; part < particiones.size(); ++part){
+				try {
+					if (particiones.at(part).size() < 2) throw (int)particiones.at(part).size();
 					// Partition Vertex
 					b2BodyDef bdP;
 					b2Body* groundP = m_world->CreateBody(&bdP);
 					b2ChainShape partitionGeom;
 
-					partitionGeom.CreateChain(&particiones.at(shape)[0], particiones.at(shape).size());
+					partitionGeom.CreateChain(&(particiones.at(part))[0], particiones.at(part).size());
 
 					b2FixtureDef defP;
 					defP.shape = &partitionGeom;
 					groundP->CreateFixture(&defP);
 				}
 				catch (int error) {
-					cerr << "shape: " << shape <<" "<< error<<" puntos. Debe contener al menos 2 puntos" << endl;
+					cerr << "part: " << part << " " << error << " puntos. Debe contener al menos 2 puntos" << endl;
 				}
-			}			
+			}
 		}
+
 		// { Read Neuron File}
 		if (neuronFile_ != ""){
 			FILE *archivoNeuron;
@@ -158,6 +185,7 @@ public:
 		// Create the particles.
 		//ResetParticles();			
 		time(&initHour);
+		//std::srand(time(NULL));
 	}
 
 	void setFiles(const vector<string> geomFile, const string neuronFile){ geomFile_ = geomFile; neuronFile_ = neuronFile; }
@@ -175,6 +203,24 @@ public:
 			return b2ParticleColor(255, 255, 255, 255);
 			break;
 		}
+	}
+
+	bool colorAction(int emiter){
+		b2ParticleColor color;
+		int colorRand = rand() % 6;
+
+		switch (colorRand){
+			case 0: color = b2ParticleColor(150, 100, 50, 200); break;// Transparente
+			case 1: color = b2ParticleColor(0, 255, 0, 255); break; // green
+			case 2: color = b2ParticleColor(255, 0, 255, 255); break;
+			case 3: color = b2ParticleColor(0, 0, 255, 255); break;// blue
+			case 4: color = b2ParticleColor(255, 255, 0, 255); break;
+			case 5: color = b2ParticleColor(255, 0, 0, 255); break;//red
+		default:
+			color = b2ParticleColor(255, 255, 255, 255); break;
+		}
+		m_emitters.at(emiter).SetColor(color);
+		return true;
 	}
 
 	virtual void Step(Settings* settings){
@@ -196,9 +242,12 @@ public:
 
 		double seg = difftime(currentTime, initHour);
 
-		if (seg > 10){
+		if ((((int)seg) % 5) == 0){
+			colorAction(0);
 			//m_emitters.at(2).SetPosition(b2Vec2(1000.0f, -600.0f));
-
+		}
+		if ((((int)seg) % 5) == 0){
+			//radAction(m_particleSystem->GetRadius());
 		}
 		m_debugDraw.DrawString(700, 60, "Time { %02u : %02u }", (unsigned int)seg / 60, (unsigned int)seg % 60);
 	}
