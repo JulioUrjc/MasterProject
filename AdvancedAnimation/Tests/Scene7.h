@@ -1,5 +1,5 @@
-#ifndef SCENE5_H
-#define SCENE5_H
+#ifndef SCENE7_H
+#define SCENE7_H
 
 #include <iostream>
 #include <time.h>
@@ -7,10 +7,10 @@
 
 using namespace std;
 
-class Scene5 : public Test {
+class Scene7 : public Test {
 public:
-	Scene5(){
-		m_world->SetGravity(b2Vec2(0, 0));
+	Scene7(){
+		m_world->SetGravity(b2Vec2(0, -10));
 
 		TestMain::GetFilesNames(geomFile_, neuronFile_);
 
@@ -46,22 +46,19 @@ public:
 			for (unsigned int i = 0; i < shapes; ++i){
 				fscanf(archivo, "%d", &loop);
 				loops.push_back(loop);
-				loops.push_back(loop);
 			}
 
 			// Geom
 			for (unsigned int shape = 0; shape < numGvertex.size(); ++shape){
 				geomRead.push_back(vector<b2Vec2>());
-				geomRead.push_back(vector<b2Vec2>());
 				for (unsigned int cont = 0; cont < numGvertex.at(shape); ++cont)
 				{
 					fscanf(archivo, "%f %f", &x, &y);
-					maxX = max(-x, max(x, maxX));
-					minX = min(-x, min(x, minX));
+					maxX = max(x, maxX);
+					minX = min(x, minX);
 					maxY = max(y, maxY);
 					minY = min(y, minY);
-					geomRead.at(geomRead.size() - 2).push_back(b2Vec2(x, y));
-					geomRead.at(geomRead.size() - 1).push_back(b2Vec2(-x, y));
+					geomRead.at(geomRead.size()-1).push_back(b2Vec2(x, y));
 				}
 			}
 			Zoom = max((maxX - minX), (maxY - minY)) / 2;
@@ -69,11 +66,9 @@ public:
 			// Partition
 			for (unsigned int part = 0; part < numPvertex.size(); ++part){
 				particiones.push_back(vector<b2Vec2>());
-				particiones.push_back(vector<b2Vec2>());
 				for (unsigned int cont = 0; cont < numPvertex.at(part); ++cont){
 					fscanf(archivo, "%f %f", &x, &y);
-					particiones.at(particiones.size() - 2).push_back(b2Vec2(x, y));
-					particiones.at(particiones.size() - 1).push_back(b2Vec2(-x, y));
+					particiones.at(particiones.size()-1).push_back(b2Vec2(x, y));
 				}
 			}
 
@@ -89,29 +84,20 @@ public:
 
 				for (unsigned int cont = 0; cont < emiters; ++cont){
 					RadialEmitter rEmit;
-					RadialEmitter rEmit2;
 
 					rEmit.SetParticleSystem(m_particleSystem);
-					rEmit2.SetParticleSystem(m_particleSystem);
 					fscanf(archivo, "%f %f", &x, &y);
 					rEmit.SetPosition(b2Vec2(x, y));
-					rEmit2.SetPosition(b2Vec2(-x, y));
 					fscanf(archivo, "%f %f", &x, &y);
 					rEmit.SetVelocity(b2Vec2(x, y));
 					rEmit.SetSize(b2Vec2(0.0f, faucetLength));
-					rEmit2.SetVelocity(b2Vec2(-x, y));
-					rEmit2.SetSize(b2Vec2(0.0f, faucetLength));
 					fscanf(archivo, "%u %u %u %u", &r, &g, &b, &a);
 					rEmit.SetColor(b2ParticleColor((uint8)r, (uint8)g, (uint8)b, (uint8)a));
-					rEmit2.SetColor(b2ParticleColor((uint8)b, (uint8)g, (uint8)r, (uint8)a));
 					fscanf(archivo, "%f", &x);
 					rEmit.SetEmitRate(x);
 					rEmit.SetParticleFlags(TestMain::GetParticleParameterValue());
-					rEmit2.SetEmitRate(x);
-					rEmit2.SetParticleFlags(TestMain::GetParticleParameterValue());
 
 					m_emitters.push_back(rEmit);
-					m_emitters.push_back(rEmit2);
 				}
 			}
 			fclose(archivo);
@@ -126,7 +112,7 @@ public:
 					b2ChainShape bodyGeom;
 
 					if (loops.at(shape)){
-						bodyGeom.CreateLoop(&(geomRead.at(shape))[0], geomRead.at(shape).size());
+						bodyGeom.CreateLoop(&(geomRead.at(shape))[0], geomRead.at(shape).size());		
 					}
 					else{
 						bodyGeom.CreateChain(&(geomRead.at(shape))[0], geomRead.at(shape).size());
@@ -134,10 +120,10 @@ public:
 
 					b2FixtureDef defB;
 					defB.shape = &bodyGeom;
-					ground->CreateFixture(&defB);
+					ground->CreateFixture(&defB);					
 				}
 				catch (int error) {
-					cerr << "shape: " << shape << " " << error << " puntos. Debe contener al menos 2 puntos" << endl;
+					cerr << "shape: " << shape <<" "<< error<<" puntos. Debe contener al menos 2 puntos" << endl;
 				}
 			}
 
@@ -199,6 +185,7 @@ public:
 		// Create the particles.
 		//ResetParticles();			
 		time(&initHour);
+		//std::srand(time(NULL));
 	}
 
 	void setFiles(const vector<string> geomFile, const string neuronFile){ geomFile_ = geomFile; neuronFile_ = neuronFile; }
@@ -218,6 +205,24 @@ public:
 		}
 	}
 
+	bool colorAction(int emiter){
+		b2ParticleColor color;
+		int colorRand = rand() % 6;
+
+		switch (colorRand){
+			case 0: color = b2ParticleColor(150, 100, 50, 200); break;// Transparente
+			case 1: color = b2ParticleColor(0, 255, 0, 255); break; // green
+			case 2: color = b2ParticleColor(255, 0, 255, 255); break;
+			case 3: color = b2ParticleColor(0, 0, 255, 255); break;// blue
+			case 4: color = b2ParticleColor(255, 255, 0, 255); break;
+			case 5: color = b2ParticleColor(255, 0, 0, 255); break;//red
+		default:
+			color = b2ParticleColor(255, 255, 255, 255); break;
+		}
+		m_emitters.at(emiter).SetColor(color);
+		return true;
+	}
+
 	virtual void Step(Settings* settings){
 		Test::Step(settings);
 
@@ -231,25 +236,27 @@ public:
 			//m_emitters.at(i).SetColor(colorPorcentaje(3));
 			m_emitters.at(i).Step(dt, NULL, 0); // Create the particles.
 		}
-
+		
 		time_t currentTime;
 		time(&currentTime);
 
 		double seg = difftime(currentTime, initHour);
 
+		if ((((int)seg) % 5) == 0){
+			colorAction(0);
+			//m_emitters.at(2).SetPosition(b2Vec2(1000.0f, -600.0f));
+		}
+		if ((((int)seg) % 5) == 0){
+			//radAction(m_particleSystem->GetRadius());
+		}
 		m_debugDraw.DrawString(700, 60, "Time { %02u : %02u }", (unsigned int)seg / 60, (unsigned int)seg % 60);
-		//m_debugDraw.DrawString(700, 75, "Barrier Pos: %f", m_position);
-		//m_debugDraw.DrawString(700, 90, "Num Particles2: %i", bottom2);
-		//m_debugDraw.DrawString(700, 105, "Barrier Pos2: %f", m_position2);
-		//m_debugDraw.DrawString(700, 120, "Num Particles3: %i", bottom3);
-		//m_debugDraw.DrawString(700, 135, "Barrier Pos3: %f", m_position3);
 	}
 
 	// Determine whether a point is in the container.
 	bool InContainer(const b2Vec2& p) const{ return p.x >= -k_containerHalfWidth && p.x <= k_containerHalfWidth && p.y >= 0.0f && p.y <= k_containerHalfHeight * 2.0f; }
 	float32 GetDefaultViewZoom() const{ return (Zoom <= 1) ? pow(Zoom, 2) : sqrt(Zoom); }
 	void GetCam(float &w, float &h) const{ w = (maxX + minX) / 2; h = (maxY + minY) / 2; }
-	static Test* Create(){ return new Scene5; }
+	static Test* Create(){ return new Scene7; }
 
 private:
 	float32 m_particleColorOffset;
@@ -290,21 +297,21 @@ private:
 	static const float32 k_faucetHeight;
 };
 
-const float32 Scene5::k_faucetLength = 2.0f;
-const float32 Scene5::k_faucetWidth = 0.1f;
-const float32 Scene5::k_faucetHeight = 15.0f;
+const float32 Scene7::k_faucetLength = 2.0f;
+const float32 Scene7::k_faucetWidth = 0.1f;
+const float32 Scene7::k_faucetHeight = 15.0f;
+				   
+const float32 Scene7::k_containerWidth = 2.0f;
+const float32 Scene7::k_containerHeight = 5.0f;
+				   
+const float32 Scene7::k_containerHalfWidth = Scene7::k_containerWidth / 2.0f;
+const float32 Scene7::k_containerHalfHeight = Scene7::k_containerHeight / 2.0f;
+const float32 Scene7::k_barrierHeight = Scene7::k_containerHalfHeight / 100.0f;
+const float32 Scene7::k_barrierMovementIncrement = Scene7::k_containerHalfHeight * 0.1f;
 
-const float32 Scene5::k_containerWidth = 2.0f;
-const float32 Scene5::k_containerHeight = 5.0f;
 
-const float32 Scene5::k_containerHalfWidth = Scene5::k_containerWidth / 2.0f;
-const float32 Scene5::k_containerHalfHeight = Scene5::k_containerHeight / 2.0f;
-const float32 Scene5::k_barrierHeight = Scene5::k_containerHalfHeight / 100.0f;
-const float32 Scene5::k_barrierMovementIncrement = Scene5::k_containerHalfHeight * 0.1f;
-
-
-const int32 Scene5::k_maxParticleCount = 10000;
-const ParticleParameter::Value Scene5::k_paramValues[] = {
+const int32 Scene7::k_maxParticleCount = 10000;
+const ParticleParameter::Value Scene7::k_paramValues[] = {
 	{ b2_waterParticle, ParticleParameter::k_DefaultOptions, "water" },
 	{ b2_waterParticle, ParticleParameter::k_DefaultOptions | ParticleParameter::OptionStrictContacts, "water (strict)" },
 	{ b2_viscousParticle, ParticleParameter::k_DefaultOptions, "viscous" },
@@ -313,7 +320,7 @@ const ParticleParameter::Value Scene5::k_paramValues[] = {
 	{ b2_colorMixingParticle, ParticleParameter::k_DefaultOptions, "color mixing" },
 	{ b2_staticPressureParticle, ParticleParameter::k_DefaultOptions, "static pressure" }, };
 
-const ParticleParameter::Definition Scene5::k_paramDef[] = { { Scene5::k_paramValues, B2_ARRAY_SIZE(Scene5::k_paramValues) }, };
-const uint32 Scene5::k_paramDefCount = B2_ARRAY_SIZE(Scene5::k_paramDef);
+const ParticleParameter::Definition Scene7::k_paramDef[] = { { Scene7::k_paramValues, B2_ARRAY_SIZE(Scene7::k_paramValues) }, };
+const uint32 Scene7::k_paramDefCount = B2_ARRAY_SIZE(Scene7::k_paramDef);
 
 #endif

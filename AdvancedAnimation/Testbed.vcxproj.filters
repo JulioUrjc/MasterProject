@@ -57,10 +57,13 @@
     <ClInclude Include="Tests\Scene4.h">
       <Filter>Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="Tests\Scene5.h">
+    <ClInclude Include="Tests\Scene7.h">
       <Filter>Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Tests\Scene6.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Tests\Scene5.h">
       <Filter>Scenes</Filter>
     </ClInclude>
   </ItemGroup>
