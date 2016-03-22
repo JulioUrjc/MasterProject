@@ -210,16 +210,38 @@ public:
 		int colorRand = rand() % 6;
 
 		switch (colorRand){
-			case 0: color = b2ParticleColor(150, 100, 50, 200); break;// Transparente
-			case 1: color = b2ParticleColor(0, 255, 0, 255); break; // green
+			case 0: color = b2ParticleColor(150, 100, 50, 200); break;// Grisaceo
+			case 1: color = b2ParticleColor(0, 255, 0, 255); break;   // green
 			case 2: color = b2ParticleColor(255, 0, 255, 255); break;
-			case 3: color = b2ParticleColor(0, 0, 255, 255); break;// blue
+			case 3: color = b2ParticleColor(0, 0, 255, 255); break;   // blue
 			case 4: color = b2ParticleColor(255, 255, 0, 255); break;
-			case 5: color = b2ParticleColor(255, 0, 0, 255); break;//red
+			case 5: color = b2ParticleColor(255, 0, 0, 255); break;   //red
 		default:
 			color = b2ParticleColor(255, 255, 255, 255); break;
 		}
 		m_emitters.at(emiter).SetColor(color);
+		return true;
+	}
+
+	bool radiusAction(float ra){ 
+		m_particleSystem->SetRadius(ra); 
+		return true; 
+	}
+
+	bool emisionAction(int emisor){
+		m_emitters.at(emisor).SetEmitRate(0);
+		return true;
+	}
+
+	bool lifeAction(double seg, int totalPart){
+		if ((int)seg % 2 == 0){
+			m_particleSystem->SetParticleLifetime(0 % totalPart, 1.0f);
+			m_particleSystem->SetParticleLifetime(1 % totalPart, 1.0f);
+			m_particleSystem->SetParticleLifetime(2 % totalPart, 1.0f);
+			m_particleSystem->SetParticleLifetime(3 % totalPart, 1.0f);
+			m_particleSystem->SetParticleLifetime(4 % totalPart, 1.0f);
+			m_particleSystem->SetParticleLifetime(5 % totalPart, 1.0f);
+		}
 		return true;
 	}
 
@@ -244,11 +266,20 @@ public:
 
 		if ((((int)seg) % 5) == 0){
 			colorAction(0);
-			//m_emitters.at(2).SetPosition(b2Vec2(1000.0f, -600.0f));
 		}
+
 		if ((((int)seg) % 5) == 0){
-			//radAction(m_particleSystem->GetRadius());
+			radiusAction(m_particleSystem->GetRadius() + 0.005f);
 		}
+
+		if ((seg > 0) && (((int)seg) % 11) == 0){
+			emisionAction(0);
+		}
+		
+		if ((seg>6) && (m_particleSystem->GetParticleCount() > 0)){
+			lifeAction(seg, m_particleSystem->GetParticleCount());
+		}
+
 		m_debugDraw.DrawString(700, 60, "Time { %02u : %02u }", (unsigned int)seg / 60, (unsigned int)seg % 60);
 	}
 
@@ -261,18 +292,10 @@ public:
 private:
 	float32 m_particleColorOffset;
 	vector<RadialEmitter> m_emitters;
-	int32 porcentaje;
-	int32 porcentaje2;
-	int32 porcentaje3;
-	int32 porcentaje4;
 
 	float32 m_position;
-	//float32 m_position2;
-	//float32 m_position3;
 
 	b2Body* m_barrierBody;
-	//b2Body* m_barrierBody2;
-	//b2Body* m_barrierBody3;
 	b2ParticleGroup* m_particleGroup;
 
 	float maxX = -FLT_MAX, minX = FLT_MAX, maxY = -FLT_MAX, minY = FLT_MAX;
@@ -312,8 +335,8 @@ const float32 Scene7::k_barrierMovementIncrement = Scene7::k_containerHalfHeight
 
 const int32 Scene7::k_maxParticleCount = 10000;
 const ParticleParameter::Value Scene7::k_paramValues[] = {
-	{ b2_waterParticle, ParticleParameter::k_DefaultOptions, "water" },
 	{ b2_waterParticle, ParticleParameter::k_DefaultOptions | ParticleParameter::OptionStrictContacts, "water (strict)" },
+	{ b2_waterParticle, ParticleParameter::k_DefaultOptions, "water" },	
 	{ b2_viscousParticle, ParticleParameter::k_DefaultOptions, "viscous" },
 	{ b2_powderParticle, ParticleParameter::k_DefaultOptions, "powder" },
 	{ b2_tensileParticle, ParticleParameter::k_DefaultOptions, "tensile" },
