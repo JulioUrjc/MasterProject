@@ -233,6 +233,16 @@ public:
 		return true;
 	}
 
+	bool emisionAddAction(int emisor){
+		m_emitters.at(emisor).SetEmitRate(m_emitters.at(emisor).GetEmitRate() + 1);
+		return true;
+	}
+
+	bool emisionSubAction(int emisor){
+		m_emitters.at(emisor).SetEmitRate(m_emitters.at(emisor).GetEmitRate() - 1);
+		return true;
+	}
+
 	bool lifeAction(double seg, int totalPart){
 		if ((int)seg % 2 == 0){
 			m_particleSystem->SetParticleLifetime(0 % totalPart, 1.0f);
@@ -241,7 +251,44 @@ public:
 			m_particleSystem->SetParticleLifetime(3 % totalPart, 1.0f);
 			m_particleSystem->SetParticleLifetime(4 % totalPart, 1.0f);
 			m_particleSystem->SetParticleLifetime(5 % totalPart, 1.0f);
+			m_particleSystem->SetParticleLifetime(6 % totalPart, 1.0f);
+			m_particleSystem->SetParticleLifetime(7 % totalPart, 1.0f);
 		}
+		return true;
+	}
+
+	bool actions(int action, int emiter){
+
+		switch (action){
+			case 0: colorAction(emiter); break;
+			case 1: radiusAction(m_particleSystem->GetRadius() + 0.005f); break;
+			case 2: emisionAction(emiter); break;
+			case 3: lifeAction(0, m_particleSystem->GetParticleCount()); break;
+			case 4: break;
+			default:
+				cout << "Opcion no valida" << endl; break;	
+		}
+
+		return true;
+	}
+
+	bool actions(double seg){
+		if ((((int)seg) % 5) == 0){
+			colorAction(0);
+		}
+
+		if ((((int)seg) % 5) == 0){
+			radiusAction(m_particleSystem->GetRadius() + 0.005f);
+		}
+
+		if ((seg > 0) && (((int)seg) % 11) == 0){
+			emisionAction(0);
+		}
+
+		if ((seg>6) && (m_particleSystem->GetParticleCount() > 0)){
+			lifeAction(seg, m_particleSystem->GetParticleCount());
+		}
+	
 		return true;
 	}
 
@@ -264,23 +311,57 @@ public:
 
 		double seg = difftime(currentTime, initHour);
 
-		if ((((int)seg) % 5) == 0){
-			colorAction(0);
-		}
-
-		if ((((int)seg) % 5) == 0){
-			radiusAction(m_particleSystem->GetRadius() + 0.005f);
-		}
-
-		if ((seg > 0) && (((int)seg) % 11) == 0){
-			emisionAction(0);
-		}
-		
-		if ((seg>6) && (m_particleSystem->GetParticleCount() > 0)){
-			lifeAction(seg, m_particleSystem->GetParticleCount());
-		}
+		actions(seg);
 
 		m_debugDraw.DrawString(700, 60, "Time { %02u : %02u }", (unsigned int)seg / 60, (unsigned int)seg % 60);
+	}
+
+	virtual void Keyboard(unsigned char key){
+		switch (key){
+			case 'a':
+				colorAction(0);
+				cout << "Change emisor 1 color " << endl;
+				break;
+			case 's':
+				colorAction(1);
+				cout << "Change emisor 1 color" << endl;
+				break;
+			case 'd':
+				radiusAction(m_particleSystem->GetRadius() + 0.005f);
+				cout << "Increases 0.005 the radius" << endl;
+				break;
+			case 'f':
+				radiusAction(m_particleSystem->GetRadius() - 0.005f);
+				cout << "Radio decremented 0.005" << endl;
+				break;
+			case 'g':
+				emisionAction(0);
+				cout << "Stop emisor 1" << endl;
+				break;
+			case 'h':
+				emisionAction(1);
+				cout << "Stop emisor 2" << endl;
+				break;
+			case 'j':
+				lifeAction(0, m_particleSystem->GetParticleCount());
+				cout << "Destroy 7 last particles in 1 sg" << endl;
+				break;
+			case 'k':
+				cout << "k option" << endl;
+				break;	
+			case 'l':
+				emisionAddAction(0);
+				cout << "Add emision rate" << endl;
+				break;
+			case 'ñ':
+				emisionSubAction(0);
+				cout << "Sub emision rate" << endl;
+				break;
+				
+			default:
+				Test::Keyboard(key);
+				break;
+		}
 	}
 
 	// Determine whether a point is in the container.

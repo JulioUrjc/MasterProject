@@ -3,6 +3,7 @@
     <head>
         <title>July PFM</title>
 		<script language="JavaScript">
+			var first = true;
 
 			function coordenadas()
 			{
@@ -22,10 +23,14 @@
 					y = event.clientY + document.body.scrollTop;
 				}
 
-				MiArchivo.WriteLine(x + " " + -1*y);
+				if(!first){
+					MiArchivo.WriteLine(x + " " + -1*y);
+				}else{
+					first = false;
+				}
 				MiArchivo.Close;
 
-				document.body.innerHTML = "x: [" + x + "] - y: [" + y + "]<br/> <img src=\"torre.jpg\" height=842 width=842>";
+				document.body.innerHTML = "x: [" + x + "] - y: [" + -y + "]<br/> <img src=\"americaSpain.jpg\" height=842 width=842>";
 			}
 
 		</script>
