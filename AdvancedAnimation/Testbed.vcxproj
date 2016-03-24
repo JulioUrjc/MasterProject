@@ -313,6 +313,7 @@
     <ClInclude Include="Tests\Scene5.h" />
     <ClInclude Include="Tests\Scene6.h" />
     <ClInclude Include="Tests\Scene7.h" />
+    <ClInclude Include="Tests\Scene8.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
