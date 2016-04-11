@@ -161,3 +161,24 @@
 -20.0 -10.0
 255 0 0 255
 200
+
+INDICE
+_______________________________
+
+numShapes numVerticesXGeom numPartitions numVerticesXPartitions numEmisores shapesLoop
+
+VertexGeometry
+|
+|
+
+VertexPartitions
+|
+|
+
+emisorRadio maxParticlesCount
+
+emisors
+|
+|
+
+(px)

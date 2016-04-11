@@ -217,7 +217,9 @@ public:
 		default:
 			color = b2ParticleColor(255, 255, 255, 255); break;
 		}
-		m_emitters.at(emiter).SetColor(color);
+		if (!m_emitters.empty()){ m_emitters.at(emiter).SetColor(color); }
+		else return false;
+
 		return true;
 	}
 
@@ -227,7 +229,9 @@ public:
 	}
 
 	bool emisionAction(int emisor){
-		m_emitters.at(emisor).SetEmitRate(0);
+		if (!m_emitters.empty()){ m_emitters.at(emisor).SetEmitRate(0); }
+		else return false;
+
 		return true;
 	}
 
