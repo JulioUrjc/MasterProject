@@ -14,7 +14,7 @@
 #include "Scene6.h"
 #include "Scene7.h"
 #include "Scene8.h"
-
+#include "Scene9.h"
 
 TestEntry g_testEntries[] ={
 	{ "Scene1", Scene1::Create},
@@ -25,5 +25,6 @@ TestEntry g_testEntries[] ={
 	{ "Scene6", Scene6::Create },
 	{ "Scene7", Scene7::Create },
 	{ "Scene8", Scene8::Create },
+	{ "Scene9", Scene9::Create },
 	{NULL, NULL}
 };
