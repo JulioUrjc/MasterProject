@@ -34,7 +34,14 @@ public:
 		m_world->SetGravity(b2Vec2(0, -10));
 
 		TestMain::GetFilesNames(geomFile_, neuronFile_);
-		string layerBox = "Files/layerBox";
+
+		string layerBox;
+		if (!fopen("Files/layerBox", "r"))
+			layerBox = "../Files/layerBox";
+		else
+			layerBox = "Files/layerBox";
+			
+
 		geomFile_.push_back(layerBox);
 
 		vector<vector<b2Vec2>> geomRead;
